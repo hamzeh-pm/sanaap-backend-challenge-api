@@ -9,10 +9,16 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 APPS_DIR = BASE_DIR / "sanaap_backend_challenge_api"
 env = environ.Env()
 
-READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
-if READ_DOT_ENV_FILE:
+USE_DOCKER = env.bool("USE_DOCKER", default=False)
+if USE_DOCKER:
     # OS environment variables take precedence over variables from .env
-    env.read_env(str(BASE_DIR / ".env"))
+    env.read_env(str(BASE_DIR / ".envs/.docker/.django"))
+    env.read_env(str(BASE_DIR / ".envs/.docker/.postgres"))
+else:
+    # OS environment variables take precedence over variables from .env
+    env.read_env(str(BASE_DIR / ".envs/.local/.django"))
+    env.read_env(str(BASE_DIR / ".envs/.local/.postgres"))
+
 
 # GENERAL
 DEBUG = env.bool("DJANGO_DEBUG", False)

@@ -19,7 +19,7 @@ force-single-line = true
 [dependency-groups]
 dev = [
     "django-extensions==4.1",
-    "psycopg==3.2.10",
+    "psycopg2-binary>=2.9.7",
     "pytest==8.4.2",
     "pytest-django==4.11.1",
     "pytest-sugar==1.1.1",

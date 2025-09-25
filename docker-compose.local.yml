@@ -16,10 +16,10 @@ services:
       - /app/.venv
       - .:/app:z
     env_file:
-      - ./.envs/.local/.django
-      - ./.envs/.local/.postgres
+      - ./.envs/.docker/.django
+      - ./.envs/.docker/.postgres
     ports:
-      - "8000:8000"
+      - "8001:8000"
     command: /start
 
   postgres:
@@ -28,13 +28,17 @@ services:
     volumes:
       - sanaap_local_postgres_data:/var/lib/postgresql/data
     env_file:
-      - ./.envs/.local/.postgres
+      - ./.envs/.docker/.postgres
+    ports:
+      - "5432:5432"
 
   redis:
     image: docker.io/redis:6
     container_name: sanaap_local_redis
     volumes:
       - sanaap_local_redis_data:/data
+    ports:
+      - "6379:6379"
 
   celeryworker:
     <<: *django
