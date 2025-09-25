@@ -1,4 +1,5 @@
 # Django
+DJANGO_SECRET_KEY=YxKNguigYhkGbSmp7tV16z0L2kbaLuEp1BwnhitIvCJawS1M4FpEBlbPlX9MUr02
 
 # Redis
 REDIS_URL=redis://redis:6379/0
