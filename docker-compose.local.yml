@@ -1,0 +1,47 @@
+volumes:
+  sanaap_local_postgres_data: {}
+  sanaap_local_redis_data: {}
+
+services:
+  django: &django
+    build:
+      context: .
+      dockerfile: ./docker/local/django/Dockerfile
+    image: sannap_local_django
+    container_name: sannap_local_django
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - /app/.venv
+      - .:/app:z
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - "8000:8000"
+    command: /start
+
+  postgres:
+    image: docker.io/postgres:17
+    container_name: sannap_local_postgres
+    volumes:
+      - sanaap_local_postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./.envs/.local/.postgres
+
+  redis:
+    image: docker.io/redis:6
+    container_name: sannap_local_redis
+    volumes:
+      - sanaap_local_redis_data:/data
+
+  celeryworker:
+    <<: *django
+    image: sannap_local_celery_worker
+    container_name: sannap_local_celery_worker
+    depends_on:
+      - redis
+      - postgres
+    ports: []
+    command: /start-celeryworker
