@@ -17,9 +17,9 @@ def main():
         ) from exc
 
     # This allows easy placement of apps within the interior
-    # sannap_backend_challenge_api directory.
+    # sanaap_backend_challenge_api directory.
     current_path = Path(__file__).parent.resolve()
-    sys.path.append(str(current_path / "sannap_backend_challenge_api"))
+    sys.path.append(str(current_path / "sanaap_backend_challenge_api"))
 
     execute_from_command_line(sys.argv)
 

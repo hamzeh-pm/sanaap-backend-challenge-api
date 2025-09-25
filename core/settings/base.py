@@ -6,7 +6,7 @@ import environ
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
 
-APPS_DIR = BASE_DIR / "sannap_backend_challenge_api"
+APPS_DIR = BASE_DIR / "sanaap_backend_challenge_api"
 env = environ.Env()
 
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
@@ -43,10 +43,13 @@ DJANGO_APPS = [
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
+    "rest_framework_simplejwt",
     "drf_spectacular",
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    "sanaap_backend_challenge_api.accounts",
+]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -127,6 +130,9 @@ X_FRAME_OPTIONS = "DENY"
 
 # ADMIN
 ADMIN_URL = "admin/"
+SUPERUSER_USERNAME = env("DJANGO_SUPERUSER_USERNAME", default=None)
+SUPERUSER_PASSWORD = env("DJANGO_SUPERUSER_PASSWORD", default=None)
+SUPERUSER_EMAIL = env("DJANGO_SUPERUSER_EMAIL", default=None)
 
 # LOGGING
 LOGGING = {
@@ -171,8 +177,7 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 # django-rest-framework
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework.authentication.SessionAuthentication",
-        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
