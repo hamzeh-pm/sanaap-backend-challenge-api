@@ -12,7 +12,6 @@ urlpatterns = [
         "api/accounts/",
         include("sanaap_backend_challenge_api.accounts.urls", namespace="accounts"),
     ),
-    # Static files
     # Media files
     *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]

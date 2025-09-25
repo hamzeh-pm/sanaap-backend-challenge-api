@@ -127,8 +127,6 @@ TEMPLATES = [
     },
 ]
 
-FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
-
 # SECURITY
 SESSION_COOKIE_HTTPONLY = True
 CSRF_COOKIE_HTTPONLY = True
