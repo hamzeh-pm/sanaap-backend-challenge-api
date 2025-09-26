@@ -7,7 +7,7 @@ from sanaap_backend_challenge_api.documents.models import Document
 from sanaap_backend_challenge_api.documents.services import DocumentService
 from rest_framework import filters
 from django.shortcuts import get_object_or_404
-
+from sanaap_backend_challenge_api.utils.paginations import CustomPagination
 from rest_framework.views import APIView
 import os
 import mimetypes
@@ -17,6 +17,7 @@ from django.http.response import FileResponse
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = serializers.DocumentResponseSerializer
+    pagination_class = CustomPagination
 
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
