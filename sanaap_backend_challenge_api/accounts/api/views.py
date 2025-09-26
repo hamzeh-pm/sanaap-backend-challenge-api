@@ -47,6 +47,11 @@ class UserViewset(viewsets.ViewSet):
         response_serializer = account_serializers.UserResponseSerializer(user)
         return Response(response_serializer.data, status=201)
 
+    def destroy(self, request, pk=None):
+        account_service = AccountService(User, Group)
+        account_service.delete_user(user_id=pk, current_user_id=request.user.id)
+        return Response(status=204)
+
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             permission_classes = [permissions.CanViewUsers]

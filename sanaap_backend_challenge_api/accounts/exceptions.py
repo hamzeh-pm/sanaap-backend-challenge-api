@@ -13,6 +13,18 @@ class UserAlreadyExistsException(APIException):
     default_code = "user_already_exists"
 
 
+class UserDoesNotExistException(APIException):
+    status_code = 404
+    default_detail = "The specified user does not exist."
+    default_code = "user_does_not_exist"
+
+
+class OwnerDeletionException(APIException):
+    status_code = 400
+    default_detail = "The owner user cannot be deleted."
+    default_code = "owner_deletion_error"
+
+
 class InvalidRoleAssignmentException(APIException):
     status_code = 400
     default_detail = "The role assignment is invalid."
