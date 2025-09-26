@@ -55,6 +55,7 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "sanaap_backend_challenge_api.accounts",
+    "sanaap_backend_challenge_api.documents",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
