@@ -277,3 +277,6 @@ ptemplate_docker/media/
 .envs/*
 !.envs/.local/
 !.envs/.docker/
+
+
+.vscode/
