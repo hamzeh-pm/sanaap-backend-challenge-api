@@ -6,6 +6,10 @@ class DocumentRequestSerializer(serializers.Serializer):
     content = serializers.ImageField(use_url=False, write_only=True)
 
 
+class DocumentUpdateRequestSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=255, required=False)
+
+
 class DocumentResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField(max_length=255)

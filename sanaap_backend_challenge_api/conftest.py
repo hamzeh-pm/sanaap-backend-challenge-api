@@ -79,6 +79,8 @@ def viewer_user(setup_groups_and_permissions, django_user_model):
 def temp_media_root(tmp_path, settings):
     settings.MEDIA_ROOT = tmp_path
 
+    print(settings.MEDIA_ROOT)
+
     with override_settings(MEDIA_ROOT=tmp_path):
         yield tmp_path
 
@@ -87,7 +89,7 @@ def temp_media_root(tmp_path, settings):
 
 
 @pytest.fixture
-def fake_image():
+def fake_image(temp_media_root):
     image = Image.new("RGB", (100, 100), color="red")
     image_buffer = io.BytesIO()
     image.save(image_buffer, format="JPEG")
