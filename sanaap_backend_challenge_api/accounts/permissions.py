@@ -15,9 +15,11 @@ class HasRolePermission(permissions.BasePermission):
 
 class CanManageUsers(permissions.BasePermission):
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.has_perm(
-            "auth.change_user"
-        )
+        if not request.user.is_authenticated:
+            return False
+
+        required_permission = ["auth.change_user", "auth.add_user", "auth.delete_user"]
+        return any(request.user.has_perm(perm) for perm in required_permission)
 
 
 class CanViewUsers(permissions.BasePermission):
