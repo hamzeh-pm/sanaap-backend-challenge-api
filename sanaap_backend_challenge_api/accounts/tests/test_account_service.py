@@ -21,7 +21,7 @@ def test_delete_user_success(db):
     service = AccountService(User, Group)
     user = User.objects.create_user(username="todelete", password="password")
     user_id = user.id
-    service.delete(user_id)
+    service.delete_user(user_id, current_user_id=999)  # 999 not the same user
     user.refresh_from_db()
     assert not user.is_active
 
