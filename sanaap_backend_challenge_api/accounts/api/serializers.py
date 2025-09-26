@@ -31,4 +31,19 @@ class UserResponseSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "role"]
 
     def get_role(self, obj):
-        return obj.groups.first().name
+        role = obj.groups.first()
+        if role:
+            return role.name
+
+
+class UserRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "username",
+            "password",
+        ]
+        extra_kwargs = {
+            "password": {"write_only": True},
+            "groups": {"write_only": True},
+        }
