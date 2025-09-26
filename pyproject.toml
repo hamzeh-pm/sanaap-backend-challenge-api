@@ -40,10 +40,12 @@ requires-python = "==3.13.*"
 
 dependencies = [
     "argon2-cffi==25.1.0",
+    "boto3>=1.40.40",
     "celery==5.5.3",
     "django==5.2.6",
     "django-environ==0.12.0",
     "django-redis==6.0.0",
+    "django-storages>=1.14.6",
     "djangorestframework==3.16.1",
     "djangorestframework-simplejwt==5.5.1",
     "drf-spectacular==0.28.0",

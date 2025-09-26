@@ -11,6 +11,7 @@ class DocumentService:
             document = self.document_model.objects.create(title=title, content=content)
             return document
         except Exception as e:
+            print(e)
             raise exceptions.FailedToCreateDocument() from e
 
     def update_document(self, document_id, title):

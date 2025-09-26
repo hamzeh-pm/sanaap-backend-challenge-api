@@ -11,7 +11,10 @@ from sanaap_backend_challenge_api.utils.paginations import CustomPagination
 from rest_framework.views import APIView
 import os
 import mimetypes
-from django.http.response import FileResponse
+from django.http.response import FileResponse, HttpResponse
+from django.conf import settings
+import boto3
+from botocore.exceptions import ClientError
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -67,6 +70,10 @@ class SecureDocumentView(APIView):
 
     def get(self, request, document_id):
         document = get_object_or_404(Document, pk=document_id)
+
+        return self._secure_serve_from_s3(document)
+
+    def _secure_serve_from_local(self, document):
         file_path = document.content.path
         if not os.path.exists(file_path):
             return Response({"detail": "File not found."}, status=404)
@@ -78,3 +85,37 @@ class SecureDocumentView(APIView):
         response["Content-Disposition"] = f'inline; filename="{document.title}"'
         response["X-Content-Type-Options"] = "nosniff"
         return response
+
+    def _secure_serve_from_s3(self, document):
+        try:
+            s3_client = boto3.client(
+                "s3",
+                endpoint_url=settings.AWS_S3_ENDPOINT_URL,
+                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                region_name=getattr(settings, "AWS_S3_REGION_NAME", "us-east-1"),
+                use_ssl=getattr(settings, "AWS_S3_USE_SSL", False),
+                verify=getattr(settings, "AWS_S3_VERIFY", False),
+            )
+
+            bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+            object_key = document.content.name
+
+            response = s3_client.get_object(Bucket=bucket_name, Key=object_key)
+
+            content_type = response.get("ContentType", "application/octet-stream")
+
+            django_response = HttpResponse(
+                response["Body"].read(), content_type=content_type
+            )
+            django_response["Content-Disposition"] = (
+                f'inline; filename="{document.title}"'
+            )
+            django_response["X-Content-Type-Options"] = "nosniff"
+            django_response["Cache-Control"] = "private, max-age=3600"
+
+            return django_response
+        except ClientError as e:
+            return Response(f"Error retrieving file: {str(e)}", status=500)
+        except Exception as e:
+            return Response(f"Unexpected error: {str(e)}", status=500)

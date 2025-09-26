@@ -1,6 +1,7 @@
 volumes:
   sanaap_local_postgres_data: {}
   sanaap_local_redis_data: {}
+  sanaap_local_minio_data: {}
 
 services:
   django: &django
@@ -12,12 +13,14 @@ services:
     depends_on:
       - postgres
       - redis
+      - minio
     volumes:
       - /app/.venv
       - .:/app:z
     env_file:
-      - ./.envs/.docker/.django
-      - ./.envs/.docker/.postgres
+      - ./.envs/.docker/.django.env
+      - ./.envs/.docker/.postgres.env
+      - ./.envs/.docker/.minio.env
     ports:
       - "8001:8000"
     command: /start
@@ -28,7 +31,7 @@ services:
     volumes:
       - sanaap_local_postgres_data:/var/lib/postgresql/data
     env_file:
-      - ./.envs/.docker/.postgres
+      - ./.envs/.docker/.postgres.env
     ports:
       - "5432:5432"
 
@@ -39,6 +42,18 @@ services:
       - sanaap_local_redis_data:/data
     ports:
       - "6379:6379"
+
+  minio:
+    image: docker.io/minio/minio
+    container_name: sanaap_local_minio
+    volumes:
+      - sanaap_local_minio_data:/data
+    env_file:
+      - ./.envs/.docker/.minio.env
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
 
   celeryworker:
     <<: *django

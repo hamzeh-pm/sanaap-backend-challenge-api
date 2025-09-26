@@ -12,6 +12,7 @@ A Django REST Framework API with role-based access control (RBAC), secure docume
 - **Docker Support** - Containerized development and deployment
 - **Testing** - Unit tests with pytest
 - **Security Features** - Protected file serving, permission-based access
+- **Secure File Storage** - MinIO S3-compatible storage with private bucket access
 
 ## Table of Contents
 
@@ -85,6 +86,7 @@ docker compose -f docker-compose.local.yml down
 - Django application (Port 8001)
 - PostgreSQL database (Port 5433)
 - Redis cache (Port 6380)
+- MinIO storage (Port 9000, Console: 9001)
 - Celery worker
 
 ### Option 2: Local Development
@@ -109,19 +111,23 @@ python manage.py runserver
 #### Local Access:
 - API: http://localhost:8000/api/
 - Documentation: http://localhost:8000/api/docs/
+- MinIO Console: http://localhost:9001
 
 ## Environment Configuration
 ### environment file Structure
 ```bash
 .envs/
 ├── .docker/          # Docker development
-│   ├── .django
-│   └── .postgres
+│   ├── .django.env
+|   ├── .postgres.env
+│   └── .minio.env
+|
 └── .local/           # Local development  
-    ├── .django
-    └── .postgres
+    ├── .django.env
+    ├── .postgres.env
+    └── .minio.env
 ```
-### Docker Environment (.django)
+### Docker Environment (.django.env)
 ```bash
 # Django
 USE_DOCKER=True
@@ -136,7 +142,7 @@ DJANGO_SUPERUSER_PASSWORD=your_secure_password
 REDIS_URL=redis://redis:6379/0
 ```
 
-### Docker Environment (.postgres)
+### Docker Environment (.postgres.env)
 ```bash
 # PostgreSQL Configuration
 POSTGRES_HOST=postgres
@@ -147,7 +153,20 @@ POSTGRES_PASSWORD=your_db_password
 DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
 ```
 
-### Local Environment (.django)
+### MinIO Environment (.minio.env)
+```bash
+# MinIO Server Configuration
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=miniopassword
+
+# Django S3 Configuration
+MINIO_ACCESS_KEY_ID=minioadmin
+MINIO_SECRET_ACCESS_KEY=miniopassword
+MINIO_STORAGE_BUCKET_NAME=django-media
+MINIO_S3_ENDPOINT_URL=http://minio:9000
+```
+
+### Local Environment (.django.env + .postgres.env + .minio.env)
 ```bash
 # Django Settings
 USE_DOCKER=False
@@ -163,6 +182,12 @@ REDIS_URL=redis://127.0.0.1:6380/0
 DJANGO_SUPERUSER_USERNAME=admin
 DJANGO_SUPERUSER_EMAIL=admin@sanaap.com
 DJANGO_SUPERUSER_PASSWORD=your_secure_password
+
+# Django S3 Configuration
+MINIO_ACCESS_KEY_ID=minioadmin
+MINIO_SECRET_ACCESS_KEY=miniopassword
+MINIO_STORAGE_BUCKET_NAME=django-media
+MINIO_S3_ENDPOINT_URL=http://127.0.0.1:9000
 ```
 
 ## Authentication & Authorization

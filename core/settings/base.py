@@ -10,15 +10,11 @@ APPS_DIR = BASE_DIR / "sanaap_backend_challenge_api"
 env = environ.Env()
 
 USE_DOCKER = env.bool("USE_DOCKER", default=False)
-if USE_DOCKER:
+if not USE_DOCKER:
     # OS environment variables take precedence over variables from .env
-    env.read_env(str(BASE_DIR / ".envs/.docker/.django"))
-    env.read_env(str(BASE_DIR / ".envs/.docker/.postgres"))
-else:
-    # OS environment variables take precedence over variables from .env
-    env.read_env(str(BASE_DIR / ".envs/.local/.django"))
-    env.read_env(str(BASE_DIR / ".envs/.local/.postgres"))
-
+    env.read_env(str(BASE_DIR / ".envs/.local/.django.env"))
+    env.read_env(str(BASE_DIR / ".envs/.local/.postgres.env"))
+    env.read_env(str(BASE_DIR / ".envs/.local/.minio.env"))
 
 # GENERAL
 DEBUG = env.bool("DJANGO_DEBUG", False)
@@ -51,6 +47,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "drf_spectacular",
+    "storages",
 ]
 
 LOCAL_APPS = [
@@ -94,6 +91,22 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+# MEDIA STORAGE (using MinIO)
+AWS_ACCESS_KEY_ID = env.str("MINIO_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = env.str("MINIO_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = env.str("MINIO_STORAGE_BUCKET_NAME")
+AWS_S3_ENDPOINT_URL = env.str("MINIO_S3_ENDPOINT_URL")
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+MEDIA_ROOT = f"{AWS_S3_ENDPOINT_URL}/{AWS_STORAGE_BUCKET_NAME}/"
+
 # STATIC
 STATIC_ROOT = str(BASE_DIR / "staticfiles")
 STATIC_URL = "/static/"
@@ -103,9 +116,6 @@ STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.AppDirectoriesFinder",
 ]
 
-# MEDIA
-MEDIA_ROOT = str(APPS_DIR / "media")
-MEDIA_URL = "/media/"
 
 # TEMPLATES
 TEMPLATES = [
