@@ -24,32 +24,33 @@ class RoleListView(generics.ListAPIView):
     permission_classes = [permissions.CanViewRoles]
 
 
-class UserViewset(viewsets.ViewSet):
-    def list(self, request):
-        data = User.objects.filter(is_active=True).exclude(is_superuser=True)
-        serializer = account_serializers.UserResponseSerializer(data, many=True)
-        return Response(serializer.data)
+class UserViewset(viewsets.ModelViewSet):
+    queryset = User.objects.filter(is_active=True, is_superuser=False)
+    serializer_class = account_serializers.UserResponseSerializer
+    http_method_names = ["get", "post", "delete", "head", "options"]
 
-    def retrieve(self, request, pk=None):
-        user = get_object_or_404(User, pk=pk, is_active=True)
-        serializer = account_serializers.UserResponseSerializer(user)
-        return Response(serializer.data)
+    def get_serializer_class(self):
+        if self.action in ["list", "retrieve"]:
+            return account_serializers.UserResponseSerializer
+        elif self.action == "create":
+            return account_serializers.UserRequestSerializer
+        elif self.action == "assign_role":
+            return account_serializers.UserRoleAssignmentSerializer
+        return account_serializers.UserResponseSerializer
 
-    def create(self, request):
-        serializer = account_serializers.UserRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
+    def perform_create(self, serializer):
         account_service = AccountService(User, Group)
         user = account_service.create_user(
             username=serializer.validated_data["username"],
             password=serializer.validated_data["password"],
         )
-        response_serializer = account_serializers.UserResponseSerializer(user)
-        return Response(response_serializer.data, status=201)
+        serializer.instance = user
 
-    def destroy(self, request, pk=None):
+    def perform_destroy(self, instance):
         account_service = AccountService(User, Group)
-        account_service.delete_user(user_id=pk, current_user_id=request.user.id)
-        return Response(status=204)
+        account_service.delete_user(
+            user_id=instance.id, current_user_id=self.request.user.id
+        )
 
     @action(detail=True, methods=["post"], url_path="assign-role")
     def assign_role(self, request, pk=None):
@@ -68,8 +69,6 @@ class UserViewset(viewsets.ViewSet):
             permission_classes = [permissions.CanViewUsers]
         elif self.action in [
             "create",
-            "update",
-            "partial_update",
             "destroy",
             "assign_role",
         ]:

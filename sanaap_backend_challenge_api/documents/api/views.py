@@ -17,6 +17,9 @@ from django.http.response import FileResponse
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = serializers.DocumentResponseSerializer
+
+    http_method_names = ["get", "post", "patch", "delete", "head", "options"]
+
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["title"]
     ordering_fields = ["uploaded_at", "title"]
