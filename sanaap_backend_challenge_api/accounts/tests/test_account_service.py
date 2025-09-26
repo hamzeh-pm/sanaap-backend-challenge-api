@@ -33,3 +33,12 @@ def test_cannot_delete_owner(db):
     with pytest.raises(Exception) as e:
         service.delete_user(user_id, current_user_id=user_id)
         assert isinstance(e.value, exceptions.OwnerDeletionException)
+
+
+def test_assign_role_success(db):
+    service = AccountService(User, Group)
+    user = User.objects.create_user(username="roleuser", password="password")
+    role = Group.objects.get(name="Editor")
+    service.assign_role(user.id, role.id, current_user_id=999)  # 999 not the same user
+    user.refresh_from_db()
+    assert user.groups.filter(name=role.name).exists()

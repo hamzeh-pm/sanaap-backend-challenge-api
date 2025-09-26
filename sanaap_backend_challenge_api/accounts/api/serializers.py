@@ -45,5 +45,8 @@ class UserRequestSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {
             "password": {"write_only": True},
-            "groups": {"write_only": True},
         }
+
+
+class UserRoleAssignmentSerializer(serializers.Serializer):
+    role_id = serializers.IntegerField()

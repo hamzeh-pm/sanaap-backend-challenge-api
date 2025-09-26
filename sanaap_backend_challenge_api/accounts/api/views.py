@@ -3,14 +3,13 @@ from django.contrib.auth.models import Group
 from django.shortcuts import get_object_or_404
 from rest_framework import generics
 from rest_framework import viewsets
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 from sanaap_backend_challenge_api.accounts import permissions
 from sanaap_backend_challenge_api.accounts.api import serializers as account_serializers
 from sanaap_backend_challenge_api.accounts.services import AccountService
-from django.contrib.auth.models import Group
-
 
 User = get_user_model()
 
@@ -52,10 +51,28 @@ class UserViewset(viewsets.ViewSet):
         account_service.delete_user(user_id=pk, current_user_id=request.user.id)
         return Response(status=204)
 
+    @action(detail=True, methods=["post"], url_path="assign-role")
+    def assign_role(self, request, pk=None):
+        serializer = account_serializers.UserRoleAssignmentSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        role_id = serializer.validated_data["role_id"]
+        account_service = AccountService(User, Group)
+        user = account_service.assign_role(
+            user_id=pk, role_id=role_id, current_user_id=request.user.id
+        )
+        response_serializer = account_serializers.UserResponseSerializer(user)
+        return Response(response_serializer.data)
+
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             permission_classes = [permissions.CanViewUsers]
-        elif self.action in ["create", "update", "partial_update", "destroy"]:
+        elif self.action in [
+            "create",
+            "update",
+            "partial_update",
+            "destroy",
+            "assign_role",
+        ]:
             permission_classes = [permissions.CanManageUsers]
         else:
             permission_classes = []

@@ -28,3 +28,24 @@ class AccountService:
             user.save()
         except self.user_model.DoesNotExist:
             raise exceptions.UserDoesNotExistException()
+
+    def assign_role(self, user_id, role_id, current_user_id):
+        try:
+            user = self.user_model.objects.get(
+                id=user_id, is_active=True, is_superuser=False
+            )
+
+            if user.id == current_user_id:
+                raise exceptions.InvalidRoleAssignmentException(
+                    "Users cannot change their own roles."
+                )
+
+            role = self.group_model.objects.get(id=role_id)
+            user.groups.clear()  # clear existing roles this version supports single role per user
+            user.groups.add(role)
+            user.save()
+            return user
+        except self.user_model.DoesNotExist:
+            raise exceptions.UserDoesNotExistException()
+        except self.group_model.DoesNotExist:
+            raise exceptions.RoleDoesNotExistException()
