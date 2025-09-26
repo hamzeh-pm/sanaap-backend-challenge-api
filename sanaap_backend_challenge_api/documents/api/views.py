@@ -6,11 +6,18 @@ from sanaap_backend_challenge_api.documents.api import serializers
 from sanaap_backend_challenge_api.documents.models import Document
 from sanaap_backend_challenge_api.documents.services import DocumentService
 
+from django.shortcuts import get_object_or_404
+
 
 class DocumentViewSet(viewsets.ViewSet):
     def list(self, request):
         data = Document.objects.all()
         serializer = serializers.DocumentResponseSerializer(data, many=True)
+        return Response(serializer.data)
+
+    def retrieve(self, request, pk=None):
+        document = get_object_or_404(Document, pk=pk)
+        serializer = serializers.DocumentResponseSerializer(document)
         return Response(serializer.data)
 
     def create(self, request):
