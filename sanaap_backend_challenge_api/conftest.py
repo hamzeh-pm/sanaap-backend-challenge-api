@@ -76,11 +76,7 @@ def viewer_user(setup_groups_and_permissions, django_user_model):
 
 
 @pytest.fixture
-def temp_media_root(tmp_path, settings):
-    settings.MEDIA_ROOT = tmp_path
-
-    print(settings.MEDIA_ROOT)
-
+def temp_media_root(tmp_path):
     with override_settings(MEDIA_ROOT=tmp_path):
         yield tmp_path
 
