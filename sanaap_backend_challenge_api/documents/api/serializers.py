@@ -13,4 +13,3 @@ class DocumentUpdateRequestSerializer(serializers.Serializer):
 class DocumentResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField(max_length=255)
-    content_url = serializers.CharField(source="content.url")

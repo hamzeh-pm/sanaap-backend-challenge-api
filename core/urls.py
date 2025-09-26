@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView
@@ -16,8 +15,6 @@ urlpatterns = [
         "api/documents/",
         include("sanaap_backend_challenge_api.documents.urls", namespace="documents"),
     ),
-    # Media files
-    *static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT),
 ]
 
 # API URLS

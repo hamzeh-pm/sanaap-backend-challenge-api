@@ -8,6 +8,11 @@ from sanaap_backend_challenge_api.documents.services import DocumentService
 
 from django.shortcuts import get_object_or_404
 
+from rest_framework.views import APIView
+import os
+import mimetypes
+from django.http.response import FileResponse
+
 
 class DocumentViewSet(viewsets.ViewSet):
     def list(self, request):
@@ -54,3 +59,21 @@ class DocumentViewSet(viewsets.ViewSet):
         elif self.action in ["destroy"]:
             permission_classes = [permissions.CanDeleteDocument]
         return [permission() for permission in permission_classes]
+
+
+class SecureDocumentView(APIView):
+    permission_classes = [permissions.CanViewDocument]
+
+    def get(self, request, document_id):
+        document = get_object_or_404(Document, pk=document_id)
+        file_path = document.content.path
+        if not os.path.exists(file_path):
+            return Response({"detail": "File not found."}, status=404)
+
+        mime_type, _ = mimetypes.guess_type(file_path)
+        response = FileResponse(
+            open(file_path, "rb"), content_type=mime_type, as_attachment=False
+        )
+        response["Content-Disposition"] = f'inline; filename="{document.title}"'
+        response["X-Content-Type-Options"] = "nosniff"
+        return response
