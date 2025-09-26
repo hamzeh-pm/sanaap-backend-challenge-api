@@ -13,3 +13,4 @@ class DocumentUpdateRequestSerializer(serializers.Serializer):
 class DocumentResponseSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField(max_length=255)
+    uploaded_at = serializers.DateTimeField()

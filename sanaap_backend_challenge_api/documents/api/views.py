@@ -5,7 +5,7 @@ from sanaap_backend_challenge_api.documents import permissions
 from sanaap_backend_challenge_api.documents.api import serializers
 from sanaap_backend_challenge_api.documents.models import Document
 from sanaap_backend_challenge_api.documents.services import DocumentService
-
+from rest_framework import filters
 from django.shortcuts import get_object_or_404
 
 from rest_framework.views import APIView
@@ -14,42 +14,39 @@ import mimetypes
 from django.http.response import FileResponse
 
 
-class DocumentViewSet(viewsets.ViewSet):
-    def list(self, request):
-        data = Document.objects.all()
-        serializer = serializers.DocumentResponseSerializer(data, many=True)
-        return Response(serializer.data)
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = serializers.DocumentResponseSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["title"]
+    ordering_fields = ["uploaded_at", "title"]
+    ordering = ["-uploaded_at"]
 
-    def retrieve(self, request, pk=None):
-        document = get_object_or_404(Document, pk=pk)
-        serializer = serializers.DocumentResponseSerializer(document)
-        return Response(serializer.data)
+    def get_serializer_class(self):
+        if self.action == "create":
+            return serializers.DocumentRequestSerializer
+        elif self.action in ["partial_update"]:
+            return serializers.DocumentUpdateRequestSerializer
+        return serializers.DocumentResponseSerializer
 
-    def create(self, request):
+    def perform_create(self, serializer):
         service = DocumentService(Document)
-        serializer = serializers.DocumentRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
         document = service.create_document(
             title=serializer.validated_data["title"],
             content=serializer.validated_data["content"],
         )
-        response_serializer = serializers.DocumentResponseSerializer(document)
-        return Response(response_serializer.data, status=201)
+        serializers.instance = document
 
-    def partial_update(self, request, pk=None):
+    def perform_update(self, serializer):
         service = DocumentService(Document)
-        serializer = serializers.DocumentUpdateRequestSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
         document = service.update_document(
-            document_id=pk, title=serializer.validated_data["title"]
+            document_id=serializer.instance.pk, title=serializer.validated_data["title"]
         )
-        response_serializer = serializers.DocumentResponseSerializer(document)
-        return Response(response_serializer.data)
+        serializer.instance = document
 
-    def destroy(self, request, pk=None):
+    def perform_destroy(self, instance):
         service = DocumentService(Document)
-        service.delete_document(document_id=pk)
-        return Response(status=204)
+        service.delete_document(document_id=instance.id)
 
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update"]:

@@ -14,7 +14,7 @@ def document_upload_path(instance, filename):
 
 
 class Document(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255, db_index=True)
     content = models.ImageField(upload_to=document_upload_path)
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
