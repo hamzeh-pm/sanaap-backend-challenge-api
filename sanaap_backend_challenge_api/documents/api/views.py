@@ -8,6 +8,11 @@ from sanaap_backend_challenge_api.documents.services import DocumentService
 
 
 class DocumentViewSet(viewsets.ViewSet):
+    def list(self, request):
+        data = Document.objects.all()
+        serializer = serializers.DocumentResponseSerializer(data, many=True)
+        return Response(serializer.data)
+
     def create(self, request):
         service = DocumentService(Document)
         serializer = serializers.DocumentRequestSerializer(data=request.data)
@@ -22,7 +27,7 @@ class DocumentViewSet(viewsets.ViewSet):
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update"]:
             permission_classes = [permissions.CanAddUpdateDocument]
-        elif self.action in ["retrieve"]:
+        elif self.action in ["list", "retrieve"]:
             permission_classes = [permissions.CanViewDocument]
         elif self.action in ["destroy"]:
             permission_classes = [permissions.CanDeleteDocument]
