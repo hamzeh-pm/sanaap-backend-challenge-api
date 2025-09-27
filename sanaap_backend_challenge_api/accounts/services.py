@@ -1,4 +1,7 @@
 from sanaap_backend_challenge_api.accounts import exceptions
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class AccountService:
@@ -9,6 +12,9 @@ class AccountService:
     def create_user(self, username, password):
         # check if the role exists
         if self.user_model.objects.filter(username=username).exists():
+            logger.error(
+                f"Service: Account Service, Method: create_user, Error: username {username} already exists."
+            )
             raise exceptions.UserAlreadyExistsException()
 
         user = self.user_model.objects.create_user(username=username, password=password)
@@ -22,11 +28,17 @@ class AccountService:
             )
 
             if user.id == current_user_id:
+                logger.error(
+                    f"Service: Account Service, Method: delete_user, Error: user.id {user.id} cannot delete their own account."
+                )
                 raise exceptions.OwnerDeletionException()
 
             user.is_active = False
             user.save()
         except self.user_model.DoesNotExist:
+            logger.error(
+                f"Service: Account Service, Method: delete_user, Error: user.id {user_id} does not exist."
+            )
             raise exceptions.UserDoesNotExistException()
 
     def assign_role(self, user_id, role_id, current_user_id):
@@ -36,6 +48,9 @@ class AccountService:
             )
 
             if user.id == current_user_id:
+                logger.error(
+                    f"Service: Account Service, Method: assign_role, Error: user.id {user.id} cannot change their own roles."
+                )
                 raise exceptions.InvalidRoleAssignmentException(
                     "Users cannot change their own roles."
                 )
@@ -46,6 +61,12 @@ class AccountService:
             user.save()
             return user
         except self.user_model.DoesNotExist:
+            logger.error(
+                f"Service: Account Service, Method: assign_role, Error: user.id {user_id} does not exist."
+            )
             raise exceptions.UserDoesNotExistException()
         except self.group_model.DoesNotExist:
+            logger.error(
+                f"Service: Account Service, Method: assign_role, Error: role.id {role_id} does not exist."
+            )
             raise exceptions.RoleDoesNotExistException()

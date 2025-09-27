@@ -1,5 +1,8 @@
 from sanaap_backend_challenge_api.documents import exceptions
 from django.db import transaction
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 class DocumentService:
@@ -11,7 +14,9 @@ class DocumentService:
             document = self.document_model.objects.create(title=title, content=content)
             return document
         except Exception as e:
-            print(e)
+            logger.error(
+                f"Service: Document Service, Method: create_document, Error: {e}"
+            )
             raise exceptions.FailedToCreateDocument() from e
 
     def update_document(self, document_id, title):
@@ -24,8 +29,14 @@ class DocumentService:
                 document.save()
             return document
         except self.document_model.DoesNotExist as e:
+            logger.error(
+                f"Service: Document Service, Method: update_document, Error: {e}"
+            )
             raise exceptions.DocumentNotFound() from e
         except Exception as e:
+            logger.error(
+                f"Service: Document Service, Method: update_document, Error: {e}"
+            )
             raise exceptions.FailedToUpdateDocument() from e
 
     def delete_document(self, document_id):
@@ -36,8 +47,14 @@ class DocumentService:
                 document.delete()
                 self._cleanup_file(file_field)
         except self.document_model.DoesNotExist as e:
+            logger.error(
+                f"Service: Document Service, Method: delete_document, Error: {e}"
+            )
             raise exceptions.DocumentNotFound() from e
         except Exception as e:
+            logger.error(
+                f"Service: Document Service, Method: delete_document, Error: {e}"
+            )
             raise exceptions.FailedToDeleteDocument() from e
 
     def _cleanup_file(self, file_field):
@@ -45,4 +62,7 @@ class DocumentService:
             try:
                 file_field.delete(save=False)
             except Exception as e:
+                logger.error(
+                    f"Service: Document Service, Method: _cleanup_file, Error: {e}"
+                )
                 raise exceptions.FileCleanupError() from e

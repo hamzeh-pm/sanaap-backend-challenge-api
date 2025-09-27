@@ -2,6 +2,9 @@ from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
+from logging import getLogger
+
+logger = getLogger(__name__)
 
 
 @receiver(post_migrate)
@@ -34,4 +37,6 @@ def assign_document_permissions_to_roles(sender, **kwargs):
     editor_group.permissions.add(add_permission, change_permission, view_permission)
     viewer_group.permissions.add(view_permission)
 
-    print("Document permissions assigned to roles successfully.")
+    logger.info(
+        "Signal: assign_document_permissions_to_roles, Success: completed successfully."
+    )
