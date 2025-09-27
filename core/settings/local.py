@@ -11,7 +11,9 @@ ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]  # noqa: S104
 
 
 # django-extensions
-INSTALLED_APPS += ["django_extensions"]
+INSTALLED_APPS += [
+    "django_extensions",
+]
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),

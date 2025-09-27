@@ -13,6 +13,8 @@ A Django REST Framework API with role-based access control (RBAC), secure docume
 - **Testing** - Unit tests with pytest
 - **Security Features** - Protected file serving, permission-based access
 - **Secure File Storage** - MinIO S3-compatible storage with private bucket access
+- **Real-time Notifications** - Websocket support for live document created notification via Django Channels
+- **Async Document Processing** - Background document upload via Celery task 
 
 ## Table of Contents
 
@@ -64,6 +66,7 @@ user django admin site to create first Admin user (user with role admin)
 - API Base URL: http://localhost:8001/api/
 - API Documentation: http://localhost:8001/api/docs/
 - Admin Panel: http://localhost:8001/admin/
+- Websocket Base URL: ws://localhost:8001/ws/
 
 ## Development Setup (Test Environment)
 
@@ -110,6 +113,7 @@ python manage.py runserver
 
 #### Local Access:
 - API: http://localhost:8000/api/
+- Websocket: ws://localhost:8000/ws/
 - Documentation: http://localhost:8000/api/docs/
 - MinIO Console: http://localhost:9001
 
@@ -140,6 +144,8 @@ DJANGO_SUPERUSER_PASSWORD=your_secure_password
 
 # Redis
 REDIS_URL=redis://redis:6379/0
+REDIS_HOST=redis
+REDIS_PORT=6379
 ```
 
 ### Docker Environment (.postgres.env)
@@ -177,6 +183,8 @@ DATABASE_URL=postgres://sanaap_user:your_db_password@127.0.0.1:5432/sanaap_db
 
 # Redis (connects to Docker Redis)
 REDIS_URL=redis://127.0.0.1:6380/0
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
 
 # Superuser Configuration
 DJANGO_SUPERUSER_USERNAME=admin
@@ -220,6 +228,11 @@ POST /api/token/refresh/
 {
   "refresh": "<refresh_token>"
 }
+```
+
+### 4. Use Token for Websocket
+```bash
+websocket_endpoint_url?token=<access_token>
 ```
 
 ## Testing
@@ -279,8 +292,13 @@ DELETE /api/documents/{id}/        # Delete document (Admin Only)
 GET    /api/documents/files/{id}/  # Download file (Admin/Editor/Viewer)
 ```
 
+### Document Websocket
+```bash
+CONNECT /ws/documents/ # notify when document is created (All Authenticated Users)
+```
+
 # Production
-> !note: the production need file is not setup due to nature of the project
+> !note: the production needed files is not setup due to nature of the project
 - docker-compose.production.yml
 - .envs/.production/.django
 - .envs/.production/.postgres

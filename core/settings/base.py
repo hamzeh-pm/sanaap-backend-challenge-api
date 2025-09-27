@@ -33,9 +33,11 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # URLS
 ROOT_URLCONF = "core.urls"
 WSGI_APPLICATION = "core.wsgi.application"
+ASGI_APPLICATION = "core.asgi.application"
 
 # APPS
 DJANGO_APPS = [
+    "daphne",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -49,6 +51,7 @@ THIRD_PARTY_APPS = [
     "rest_framework_simplejwt",
     "drf_spectacular",
     "storages",
+    "channels",
 ]
 
 LOCAL_APPS = [
@@ -171,6 +174,18 @@ LOGGING = {
 
 # Redis
 REDIS_URL = env("REDIS_URL", default="redis://redis:6379/0")
+REDIS_HOST = env("REDIS_HOST")
+REDIS_PORT = env("REDIS_PORT")
+
+# CHannels
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, REDIS_PORT)],
+        },
+    },
+}
 
 # Celery
 if USE_TZ:

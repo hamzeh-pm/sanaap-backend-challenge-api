@@ -5,6 +5,7 @@ from celery import shared_task
 from django.core.files.base import ContentFile
 
 from sanaap_backend_challenge_api.documents.models import Document
+from sanaap_backend_challenge_api.documents.publishers import DocumentPublisher
 from sanaap_backend_challenge_api.documents.services import DocumentService
 
 logger = getLogger(__name__)
@@ -19,6 +20,11 @@ def upload_document(title, file_content, original_name, content_type):
 
         service = DocumentService(Document)
         document = service.create_document(title=title, content=django_file)
+
+        publisher = DocumentPublisher()
+        publisher.publish_document_created(
+            document_id=document.id, document_title=document.title
+        )
 
         logger.info(
             f"Task: upload_document, Success: Uploaded document ID {document.id}"
