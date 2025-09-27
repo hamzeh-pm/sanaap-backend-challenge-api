@@ -6,5 +6,6 @@ set -o nounset
 
 python manage.py migrate
 python manage.py create_superuser
+python manage.py assign_auth_permissions
 python manage.py create_media_bucket
 exec python manage.py runserver 0.0.0.0:8000
