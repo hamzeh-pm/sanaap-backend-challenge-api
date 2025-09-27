@@ -18,11 +18,12 @@ from sanaap_backend_challenge_api.documents import tasks
 from sanaap_backend_challenge_api.documents.api import serializers
 from sanaap_backend_challenge_api.documents.models import Document
 from sanaap_backend_challenge_api.documents.services import DocumentService
+from sanaap_backend_challenge_api.utils.mixins import ViewsetAccessLogMixin
 from sanaap_backend_challenge_api.utils.paginations import CustomPagination
 from sanaap_backend_challenge_api.utils.schemas import TaskResponse
 
 
-class DocumentViewSet(viewsets.ModelViewSet):
+class DocumentViewSet(ViewsetAccessLogMixin, viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = serializers.DocumentResponseSerializer
     pagination_class = CustomPagination

@@ -1,7 +1,8 @@
-from datetime import datetime
 import os
 import random
+from datetime import datetime
 
+from auditlog.registry import auditlog
 from django.db import models
 
 
@@ -21,3 +22,6 @@ class Document(models.Model):
 
     def __str__(self):
         return self.title
+
+
+auditlog.register(Document)

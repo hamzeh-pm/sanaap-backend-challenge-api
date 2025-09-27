@@ -52,6 +52,7 @@ THIRD_PARTY_APPS = [
     "drf_spectacular",
     "storages",
     "channels",
+    "auditlog",
 ]
 
 LOCAL_APPS = [
@@ -93,6 +94,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "auditlog.middleware.AuditlogMiddleware",
 ]
 
 # MEDIA STORAGE (using MinIO)

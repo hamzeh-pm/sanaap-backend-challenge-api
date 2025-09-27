@@ -338,6 +338,19 @@ wheels = [
 ]
 
 [[package]]
+name = "django-auditlog"
+version = "3.2.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "python-dateutil" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/e1/46/9da1d94493832fa18d2f6324a76d387fa232001593866987a96047709f4e/django_auditlog-3.2.1.tar.gz", hash = "sha256:63a4c9f7793e94eed804bc31a04d9b0b58244b1d280e2ed273c8b406bff1f779", size = 72926 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a7/06/67296d050a72dcd76f57f220df621cb27e5b9282ba7ad0f5f74870dce241/django_auditlog-3.2.1-py3-none-any.whl", hash = "sha256:99603ca9d015f7e9b062b1c34f3e0826a3ce6ae6e5950c81bb7e663f7802a899", size = 38330 },
+]
+
+[[package]]
 name = "django-environ"
 version = "0.12.0"
 source = { registry = "https://pypi.org/simple" }
@@ -878,6 +891,7 @@ dependencies = [
     { name = "channels", extra = ["daphne"] },
     { name = "channels-redis" },
     { name = "django" },
+    { name = "django-auditlog" },
     { name = "django-environ" },
     { name = "django-redis" },
     { name = "django-storages" },
@@ -907,6 +921,7 @@ requires-dist = [
     { name = "channels", extras = ["daphne"], specifier = ">=4.3.1" },
     { name = "channels-redis", specifier = ">=4.3.0" },
     { name = "django", specifier = "==5.2.6" },
+    { name = "django-auditlog", specifier = ">=3.2.1" },
     { name = "django-environ", specifier = "==0.12.0" },
     { name = "django-redis", specifier = "==6.0.0" },
     { name = "django-storages", specifier = ">=1.14.6" },
