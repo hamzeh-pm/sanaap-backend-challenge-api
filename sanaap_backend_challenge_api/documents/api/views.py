@@ -1,20 +1,25 @@
+import base64
+import mimetypes
+import os
+
+import boto3
+from botocore.exceptions import ClientError
+from django.conf import settings
+from django.http.response import FileResponse
+from django.http.response import HttpResponse
+from django.shortcuts import get_object_or_404
+from rest_framework import filters
 from rest_framework import viewsets
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from sanaap_backend_challenge_api.documents import permissions
+from sanaap_backend_challenge_api.documents import tasks
 from sanaap_backend_challenge_api.documents.api import serializers
 from sanaap_backend_challenge_api.documents.models import Document
 from sanaap_backend_challenge_api.documents.services import DocumentService
-from rest_framework import filters
-from django.shortcuts import get_object_or_404
 from sanaap_backend_challenge_api.utils.paginations import CustomPagination
-from rest_framework.views import APIView
-import os
-import mimetypes
-from django.http.response import FileResponse, HttpResponse
-from django.conf import settings
-import boto3
-from botocore.exceptions import ClientError
+from sanaap_backend_challenge_api.utils.schemas import TaskResponse
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -37,12 +42,22 @@ class DocumentViewSet(viewsets.ModelViewSet):
         return serializers.DocumentResponseSerializer
 
     def perform_create(self, serializer):
-        service = DocumentService(Document)
-        document = service.create_document(
-            title=serializer.validated_data["title"],
-            content=serializer.validated_data["content"],
+        title = serializer.validated_data["title"]
+        content = serializer.validated_data["content"]
+
+        # i have 3 solutions here to send the file to celery task
+        # 1. save the file to a shared volume between django and celery worker container (not good containers must be stateless)
+        # 2. save the file into local storage like S3 (best practice in my opinion)
+        # for the sake of this challenge i consider MinIO not local storage but implemented locally for testing
+        # 3. encode the file to base64 and send it to celery task (not good for large files but ok for this challenge)
+        content.seek(0)
+        file_content = base64.b64encode(content.read()).decode("utf-8")
+
+        task = tasks.upload_document.delay(
+            title, file_content, content.name, content.content_type
         )
-        serializers.instance = document
+
+        serializer.instance = TaskResponse(task_id=task.id, title=title)
 
     def perform_update(self, serializer):
         service = DocumentService(Document)
